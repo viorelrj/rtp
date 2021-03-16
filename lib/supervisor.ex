@@ -1,18 +1,39 @@
-defmodule RTP.Supervisor do
-  use Supervisor
+# defmodule WorkerSupervisor do
+#   use GenServer
 
-  def start_link(opts) do
-    Supervisor.start_link(__MODULE__, :ok, opts)
-  end
+#   def start_link(opts) do
+#     GenServer.start_link(__MODULE__, :ok, opts)
+#   end
 
-  @impl true
-  @spec init(:ok) :: {:ok, {%{intensity: any, period: any, strategy: any}, list}}
-  def init(:ok) do
-    children = [
-      {RTP.Consumer, name: RTP.Consumer},
-      {Task.Supervisor, name: RTP.SSESupervisor, strategy: :one_for_one}
-    ]
+#   def create(server, pid) do
+#     GenServer.cast(server, {:create, pid})
+#   end
 
-    Supervisor.init(children, strategy: :one_for_all)
-  end
-end
+#   @impl true
+#   def init(:ok) do
+#     {:ok, []}
+#   end
+
+#   @impl true
+#   def handle_cast({:create, pid}, refs) do
+#     if Map.has_key?(refs, pid) do
+#       {:noreply, refs}
+#     else
+#       {:ok, pid} = DynamicSupervisor.start_child(KV.BucketSupervisor, KV.Bucket)
+#       ref = Process.monitor(pid)
+#       refs = [refs] ++ [ref]
+#       {:noreply, refs}
+#     end
+#   end
+
+#   @impl true
+#   def handle_info({:DOWN, ref, :process, _pid, _reason}, refs) do
+#     {name, refs} = Map.pop(refs, ref)
+#     {:noreply, {names, refs}}
+#   end
+
+#   @impl true
+#   def handle_info(_msg, state) do
+#     {:noreply, state}
+#   end
+# end

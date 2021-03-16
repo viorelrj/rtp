@@ -1,4 +1,4 @@
-defmodule RTP.Analysis do
+defmodule Analysis do
   def get_score(message) do
     words = String.split(message, ~r/[\s.!?:;]{1,}/, trim: true)
     count = Enum.count(words)
