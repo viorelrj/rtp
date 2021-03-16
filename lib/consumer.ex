@@ -5,7 +5,7 @@ defmodule RTP.Consumer do
   def init(:ok) do
     addresses = %{}
     refs = %{}
-    funnel = spawn fn -> RTP.ConsumerFunnel.recv() end
+    funnel = spawn(fn -> RTP.ConsumerFunnel.recv() end)
     Process.monitor(funnel)
     {:ok, {addresses, refs, funnel}}
   end
@@ -19,7 +19,11 @@ defmodule RTP.Consumer do
     if Map.has_key?(addresses, address) do
       {:noreply, {addresses, refs, funnel}}
     else
-      {:ok, pid} = Task.Supervisor.start_child(RTP.SSESupervisor, fn -> EventsourceEx.new(address, stream_to: funnel) end)
+      {:ok, pid} =
+        Task.Supervisor.start_child(RTP.SSESupervisor, fn ->
+          EventsourceEx.new(address, stream_to: funnel)
+        end)
+
       ref = Process.monitor(pid)
       refs = Map.put(refs, ref, address)
       addresses = Map.put(addresses, address, pid)
@@ -29,13 +33,13 @@ defmodule RTP.Consumer do
 
   @impl true
   def handle_info({:DOWN, reference, :process, pid, :normal}, state) do
-    IO.puts "test"
+    IO.puts("test")
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:KILL, state) do
-    IO.puts "Handled Kill"
+    IO.puts("Handled Kill")
     {:noreply, state}
   end
 
@@ -44,7 +48,7 @@ defmodule RTP.Consumer do
   end
 
   def kill() do
-    IO.puts "handle kill"
+    IO.puts("handle kill")
   end
 end
 
@@ -53,6 +57,7 @@ defmodule RTP.ConsumerFunnel do
     receive do
       tweet -> manage(tweet.data)
     end
+
     recv()
   end
 
@@ -61,15 +66,16 @@ defmodule RTP.ConsumerFunnel do
       {:ok, content} -> content |> print()
       {:ignore} -> :noop
     end
-
   end
 
   defp print(data) do
-    IO.puts data["message"]["tweet"]["text"]
+    message = data["message"]["tweet"]["text"]
+    IO.puts(message)
+    IO.puts(RTP.Analysis.get_score(message))
   end
 
   defp serialize(data) do
-    case JSON.decode data do
+    case JSON.decode(data) do
       {:ok, content} -> handle_success(content)
       {:error, _value} -> handle_error()
     end
@@ -81,6 +87,6 @@ defmodule RTP.ConsumerFunnel do
   end
 
   defp handle_success(content) do
-    {:ok, content }
+    {:ok, content}
   end
 end
