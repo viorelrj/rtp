@@ -6,6 +6,7 @@ defmodule RTP.Supervisor do
   end
 
   @impl true
+  @spec init(:ok) :: {:ok, {%{intensity: any, period: any, strategy: any}, list}}
   def init(:ok) do
     children = [
       {RTP.Consumer, name: RTP.Consumer},
