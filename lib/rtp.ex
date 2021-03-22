@@ -5,6 +5,7 @@ defmodule RTP do
   def start(_type, _args) do
     children = [
       {DynamicSupervisor, name: ConnectionSupervisor, strategy: :one_for_one},
+      {Router, name: Router},
     ]
 
     Supervisor.start_link(children, strategy: :one_for_all)
