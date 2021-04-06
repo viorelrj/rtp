@@ -4,6 +4,7 @@ defmodule RTP do
   @impl true
   def start(_type, _args) do
     children = [
+      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one},
       {DynamicSupervisor, name: ConnectionSupervisor, strategy: :one_for_one},
       {Router, name: Router},
     ]

@@ -13,23 +13,30 @@ defmodule Router do
   @impl true
   def init(:ok) do
     workers = []
-    {:ok, pid} = Worker.start_link([])
-    workers = workers ++ [pid]
-    {:ok, pid} = Worker.start_link([])
-    workers = workers ++ [pid]
-    {:ok, pid} = Worker.start_link([])
-    workers = workers ++ [pid]
-    {:ok, pid} = Worker.start_link([])
-    workers = workers ++ [pid]
+    index = 0
 
-    {:ok, workers}
+    {:ok, {workers, index}}
+  end
+
+  defp get_worker(items, index) do
+    len = length items
+    index = rem(len, index)
+    Enum.at(items, index)
+  end
+
+  def set_workers(workers) do
+    GenServer.cast(__MODULE__, {:set_workers, workers})
   end
 
   @impl true
-  def handle_cast({:handle_tweet, tweet}, workers) do
-    [selected | other_workers] = workers
+  def handle_cast({:handle_tweet, tweet}, {workers, index}) do
+    index = index + 1
+    selected = get_worker(workers, index)
     Worker.handle(selected, tweet)
-    workers = other_workers ++ [selected]
-    {:noreply, workers}
+    {:noreply, {workers, index}}
+  end
+
+  def handle_cast({:set_workers_count, workers}, {_workers, index}) do
+    {:noreply, {workers, index}}
   end
 end
