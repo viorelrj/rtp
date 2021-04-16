@@ -1,15 +1,18 @@
 defmodule WorkerSupervisor do
   use GenServer
 
-  def init(:ok) do
-    refs = %{}
-    {ref, pid} = add_process()
-    refs = Map.put(refs, ref, pid)
-    {:ok, refs}
-  end
-
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
+  end
+
+
+  @impl true
+  def init(:ok) do
+    refs = %{}
+    refs = add_process(refs, 5)
+
+    Router.set_workers(Map.values(refs))
+    {:ok, refs}
   end
 
   def create() do
@@ -18,17 +21,20 @@ defmodule WorkerSupervisor do
 
   @impl true
   def handle_cast({:create}, refs) do
-    {ref, pid} = add_process()
-    refs = Map.put(refs, ref, pid)
-
+    refs = add_process(refs, 1)
     Router.set_workers(Map.values(refs))
     {:noreply, refs}
   end
 
-  defp  add_process() do
-    {:ok, pid} = DynamicSupervisor.start_child(WorkerSupervisor, Worker)
-    ref = Process.monitor(pid)
-    {ref, pid}
+  def  add_process(refs, count) do
+    case count do
+      0 -> refs
+      _ ->
+        {:ok, pid} = DynamicSupervisor.start_child(WorkerDynamicSupervisor, Worker)
+        ref = Process.monitor(pid)
+        refs = Map.put(refs, ref, pid)
+        WorkerSupervisor.add_process(refs, count - 1)
+    end
   end
 
   @impl true

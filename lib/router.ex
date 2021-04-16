@@ -20,8 +20,8 @@ defmodule Router do
 
   defp get_worker(items, index) do
     len = length items
-    index = rem(len, index)
-    Enum.at(items, index)
+    index = rem(index, len)
+    { Enum.at(items, index), index}
   end
 
   def set_workers(workers) do
@@ -30,13 +30,14 @@ defmodule Router do
 
   @impl true
   def handle_cast({:handle_tweet, tweet}, {workers, index}) do
-    index = index + 1
-    selected = get_worker(workers, index)
+    {selected, index} = get_worker(workers, index + 1)
     Worker.handle(selected, tweet)
+    IO.puts "handled from #{index}"
     {:noreply, {workers, index}}
   end
 
-  def handle_cast({:set_workers_count, workers}, {_workers, index}) do
-    {:noreply, {workers, index}}
+  @impl true
+  def handle_cast({:set_workers, workers}, {_workers, _index}) do
+    {:noreply, {workers, 0}}
   end
 end
