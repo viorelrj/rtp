@@ -19,6 +19,10 @@ defmodule WorkerSupervisor do
     GenServer.cast(__MODULE__, {:create})
   end
 
+  def set_workers_count(count) do
+    GenServer.cast(__MODULE__, {:set_workers_count, count})
+  end
+
   @impl true
   def handle_cast({:create}, refs) do
     refs = add_process(refs, 1)
@@ -26,7 +30,24 @@ defmodule WorkerSupervisor do
     {:noreply, refs}
   end
 
-  def  add_process(refs, count) do
+  def handle_cast({:set_workers_count, number_goal}, refs) do
+    current_len = length(Map.keys(refs))
+    difference = number_goal - current_len
+
+    case difference do
+      0 -> {:noreply, refs}
+      x when x > 0 ->
+        refs = add_process(refs, difference)
+        Router.set_workers(Map.values(refs))
+        {:noreply, refs}
+      x when x < 0 ->
+        refs = remove_process(refs, -difference)
+        Router.set_workers(Map.values(refs))
+        {:noreply, refs}
+    end
+  end
+
+  def add_process(refs, count) do
     case count do
       0 -> refs
       _ ->
@@ -34,6 +55,16 @@ defmodule WorkerSupervisor do
         ref = Process.monitor(pid)
         refs = Map.put(refs, ref, pid)
         WorkerSupervisor.add_process(refs, count - 1)
+    end
+  end
+
+  def remove_process(refs, count) do
+    case count do
+      0 -> refs
+      _ ->
+        key = List.first Map.keys(refs)
+        {_value, refs} = Map.pop(refs, key)
+        remove_process(refs, count - 1)
     end
   end
 
