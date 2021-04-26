@@ -32,7 +32,6 @@ defmodule Router do
   def handle_cast({:handle_tweet, tweet}, {workers, index}) do
     {selected, index} = get_worker(workers, index + 1)
     Worker.handle(selected, tweet)
-    IO.puts "handled from #{index}"
     {:noreply, {workers, index}}
   end
 

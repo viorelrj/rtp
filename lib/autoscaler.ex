@@ -12,7 +12,7 @@ defmodule Autoscaler do
   end
 
   def loop do
-    looper = spawn(fn ->
+    spawn(fn ->
       Process.sleep(1000)
       GenServer.cast(__MODULE__, {:refresh})
     end)

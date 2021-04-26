@@ -23,6 +23,7 @@ defmodule RTP.MixProject do
   defp deps do
     [
       {:eventsource_ex, git: "git://github.com/cwc/eventsource_ex.git"},
+      {:mongodb_driver, git: "git://github.com/zookzook/elixir-mongodb-driver.git"},
       {:json, "~> 1.4"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}

@@ -9,7 +9,7 @@ defmodule Worker do
     {:ok, %{}}
   end
 
-  def handle(server, data) do
+  def handle(_server, data) do
     case serialize(data) do
       {:ok, content} -> handle_success(content)
       {:error} -> handle_error()
@@ -25,7 +25,13 @@ defmodule Worker do
 
   defp handle_success(content) do
     message = content["message"]["tweet"]["text"]
-    IO.puts Analysis.get_score(message)
+    message_score = Analysis.get_score(message)
+
+    handled = %{
+      tweet: content["message"]["tweet"],
+      score: message_score
+    }
+    Sink.add_tweet(handled)
     # Connection.handle_message(Connection, message)
   end
 
