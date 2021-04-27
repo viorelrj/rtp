@@ -21,6 +21,7 @@ defmodule Counter do
   @impl true
   def handle_cast({:refresh}, count) do
     Autoscaler.set_count(count)
+    Sink.tick(count)
     loop()
     {:noreply, 0}
   end
