@@ -4,6 +4,7 @@ defmodule RTP do
   @impl true
   def start(_type, _args) do
     children = [
+      {Counter, name: Counter},
       {Autoscaler, name: Autoscaler},
       {TweetsDatabase, name: TweetsDatabase},
       {Sink, name: Sink},

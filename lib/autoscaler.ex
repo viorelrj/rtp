@@ -7,32 +7,18 @@ defmodule Autoscaler do
 
   @impl true
   def init(:ok) do
-    loop()
-    {:ok, 0}
+    {:ok, {}}
   end
 
-  def loop do
-    spawn(fn ->
-      Process.sleep(1000)
-      GenServer.cast(__MODULE__, {:refresh})
-    end)
+  def set_count(count) do
+    GenServer.cast(__MODULE__, {:set_count, count})
   end
 
   @impl true
-  def handle_cast({:increase}, count) do
-    {:noreply, count + 1}
-  end
-
-  @impl true
-  def handle_cast({:refresh}, count) do
+  def handle_cast({:set_count, count}, _) do
     new_count = div(count, 10) + 1
     WorkerSupervisor.set_workers_count(new_count)
-    loop()
-    {:noreply, 0}
-  end
-
-  def log_request do
-    GenServer.cast(__MODULE__, {:increase})
+    {:noreply, {}}
   end
 
 end

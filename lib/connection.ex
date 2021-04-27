@@ -17,7 +17,7 @@ defmodule ConnectionItem do
   defp recv() do
     receive do
       tweet ->
-        Autoscaler.log_request()
+        Counter.log_request()
         Router.route(tweet.data)
     end
     recv()
