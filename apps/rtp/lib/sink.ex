@@ -23,7 +23,6 @@ defmodule Sink do
 
   @impl true
   def handle_cast({:tick, count}, {tweets, length, max_length}) do
-    IO.puts "storing based on timer"
     max_length = count / (max_length + 1)
     new_state = send(tweets, length, max_length)
     {tweets, length, _max_length} = new_state
@@ -36,7 +35,6 @@ defmodule Sink do
     length = length + 1
 
     if (length > max_length) do
-      IO.puts "storing based on max length"
       new_state = send(tweets, length, max_length)
       {:noreply, new_state}
     end
@@ -46,7 +44,6 @@ defmodule Sink do
 
 
   def send(tweets, length, max_length) do
-    IO.puts "Current length #{length}"
     if (length > 0) do
       TweetsDatabase.store_tweets(tweets)
       {[], 0, max_length}
