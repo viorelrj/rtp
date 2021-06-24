@@ -1,16 +1,11 @@
 defmodule TCPServer.ServerApi do
   require Logger
 
-  def accept(port) do
-    # The options below mean:
-    #
-    # 1. `:binary` - receives data as binaries (instead of lists)
-    # 2. `packet: :line` - receives data line by line
-    # 3. `active: false` - blocks on `:gen_tcp.recv/2` until data is available
-    # 4. `reuseaddr: true` - allows us to reuse the address if the listener crashes
-    #
-    {:ok, socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
-    Logger.info("Accepting connections on port #{port}")
+  @port 4041
+
+  def start() do
+    {:ok, socket} = :gen_tcp.listen(@port, [:binary, active: false, reuseaddr: true])
+    Logger.info "Accepting Server connections on port #{@port}..."
     loop_acceptor(socket)
   end
 
@@ -36,15 +31,9 @@ defmodule TCPServer.ServerApi do
     end
   end
 
-  defp write_line(socket, line) do
-    :gen_tcp.send(socket, line)
-  end
-
   defp parse(line, sock) do
-    case String.split(line) do
-      ["send", topic, message] ->
-        subscribers = TCPServer.Subscribers.topic_subscribers(topic)
-        Enum.each(subscribers, fn sock -> write_line(sock, message) end)
-    end
+    {topic, content} = Mediator.decode_topic(line)
+    subscribers = TCPServer.Subscribers.topic_subscribers(topic)
+    Enum.each(subscribers, fn subscriber -> :gen_tcp.send(subscriber, content) end)
   end
 end

@@ -10,9 +10,10 @@ defmodule TCPServer.Application do
     children = [
       { Task.Supervisor, name: TCPServer.TaskSupervisor },
       { TCPServer.Subscribers, name: TCPServer.Subscribers },
-      Supervisor.child_spec({Task, fn -> TCPServer.ClientApi.accept(4040) end}, id: :client_tasks, restart: :permanent),
-      Supervisor.child_spec({Task, fn -> TCPServer.ServerApi.accept(4041) end}, id: :server_tasks, restart: :permanent),
+      Supervisor.child_spec({Task, fn -> TCPServer.ClientApi.start() end}, id: :client_tasks, restart: :permanent),
+      Supervisor.child_spec({Task, fn -> TCPServer.ServerApi.start() end}, id: :server_tasks, restart: :permanent),
     ]
+
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

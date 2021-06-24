@@ -15,7 +15,6 @@ defmodule TCPServer.Subscribers do
   def handle_cast({:subscribe, topic, connection}, topic_map) do
     subscribers = topic_map[topic] || []
     new_map = Map.put(topic_map, topic, [connection | subscribers])
-    IO.puts(Map.keys(topic_map))
     {:noreply, new_map}
   end
 
