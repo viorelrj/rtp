@@ -24,15 +24,18 @@ defmodule Worker do
   end
 
   defp handle_success(content) do
-    message = content["message"]["tweet"]["text"]
-    message_score = Analysis.get_score(message)
+    # message = Poison.decode!(tweet)["message"]
 
-    handled = %{
+    tweet = content["message"]["tweet"]["text"]
+    topic = content["message"]["tweet"]["lang"]
+    tweet_score = Analysis.get_score(tweet)
+
+    tweet_with_score = %{
       tweet: content["message"]["tweet"],
-      score: message_score
+      score: tweet_score
     }
-    Sink.add_tweet(handled)
-    # Connection.handle_message(Connection, message)
+    Sink.add_tweet(tweet_with_score)
+    ApiConnection.send_message(Mediator.encode_topic(topic, tweet))
   end
 
   defp handle_error() do

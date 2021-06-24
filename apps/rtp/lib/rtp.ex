@@ -4,6 +4,7 @@ defmodule RTP do
   @impl true
   def start(_type, _args) do
     children = [
+      {ApiConnection, name: ApiConnection},
       {Counter, name: Counter},
       {Autoscaler, name: Autoscaler},
       {TweetsDatabase, name: TweetsDatabase},
@@ -18,10 +19,10 @@ defmodule RTP do
 
     Supervisor.start_link(children, strategy: :one_for_all)
 
-     DynamicSupervisor.start_child(
-       ConnectionSupervisor,
-       {ConnectionItem, url: "127.0.0.1:4000/tweets/1"}
-     )
+    DynamicSupervisor.start_child(
+      ConnectionSupervisor,
+      {ConnectionItem, url: "127.0.0.1:4000/tweets/1"}
+    )
 
     DynamicSupervisor.start_child(
       ConnectionSupervisor,
