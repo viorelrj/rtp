@@ -16,7 +16,7 @@ defmodule ApiConnection do
 
   @impl true
   def init(:ok) do
-    case :gen_tcp.connect(@ip, @port, [:binary, active: false, reuseaddr: true]) do
+    case :gen_tcp.connect(@ip, @port, [:binary, active: false, reuseaddr: true, packet: :line]) do
       {:ok, socket} -> {:ok, socket}
       {:error, reason} -> disconnect(reason)
     end
@@ -27,8 +27,7 @@ defmodule ApiConnection do
 
   @impl true
   def handle_cast({:message, message}, socket) do
-    IO.puts message
-    :ok = :gen_tcp.send(socket, message)
+    :gen_tcp.send(socket, message <> "\r\n")
     {:noreply, socket}
   end
 

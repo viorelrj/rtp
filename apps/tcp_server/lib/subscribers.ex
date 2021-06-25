@@ -29,7 +29,7 @@ defmodule TCPServer.Subscribers do
 
   @impl true
   def handle_call({:get_subscribers, topic}, _from, topic_map) do
-    {:reply, topic_map[topic], topic_map}
+    {:reply, topic_map[topic] || [], topic_map}
   end
 
   @spec topic_subscribers(any) :: any

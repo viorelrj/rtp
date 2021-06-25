@@ -24,8 +24,6 @@ defmodule Worker do
   end
 
   defp handle_success(content) do
-    # message = Poison.decode!(tweet)["message"]
-
     tweet = content["message"]["tweet"]["text"]
     topic = content["message"]["tweet"]["lang"]
     tweet_score = Analysis.get_score(tweet)
@@ -35,7 +33,10 @@ defmodule Worker do
       score: tweet_score
     }
     Sink.add_tweet(tweet_with_score)
-    ApiConnection.send_message(Mediator.encode_topic(topic, tweet))
+    if (topic != nil and tweet != nil) do
+
+      ApiConnection.send_message(Mediator.encode_topic(topic, tweet))
+    end
   end
 
   defp handle_error() do

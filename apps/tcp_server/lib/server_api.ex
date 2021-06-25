@@ -4,7 +4,7 @@ defmodule TCPServer.ServerApi do
   @port 4041
 
   def start() do
-    {:ok, socket} = :gen_tcp.listen(@port, [:binary, active: false, reuseaddr: true])
+    {:ok, socket} = :gen_tcp.listen(@port, [:binary, active: false, reuseaddr: true, packet: :line])
     Logger.info "Accepting Server connections on port #{@port}..."
     loop_acceptor(socket)
   end
